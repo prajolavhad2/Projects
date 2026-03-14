@@ -1,0 +1,24 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="row mt-4">
+  <div class="col-6 offset-3">
+    <div class="card shadow-sm p-4 text-center">
+      <div style="font-size: 3rem;">✅</div>
+      <h3 class="mt-2">Booking Confirmed!</h3>
+      <hr>
+      <div class="text-start">
+        <p><b>Property:</b> <%= booking.listing.title %></p>
+        <p><b>Location:</b> <%= booking.listing.location %>, <%= booking.listing.country %></p>
+        <p><b>Check-in:</b> <%= new Date(booking.checkIn).toDateString() %></p>
+        <p><b>Check-out:</b> <%= new Date(booking.checkOut).toDateString() %></p>
+        <p><b>Nights:</b> <%= booking.totalNights %></p>
+        <p><b>Total Paid:</b> &#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+        <p><b>Payment ID:</b> <span class="text-muted" style="font-size:0.85rem;"><%= booking.paymentId %></span></p>
+        <p><b>Status:</b> <span class="badge bg-success"><%= booking.status %></span></p>
+      </div>
+      <hr>
+      <a href="/bookings/my-bookings" class="btn btn-dark w-100 mb-2">View All My Bookings</a>
+      <a href="/listings" class="btn btn-outline-dark w-100">Browse More Listings</a>
+    </div>
+  </div>
+</div>

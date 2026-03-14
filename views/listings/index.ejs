@@ -1,0 +1,378 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<style>
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.filter {
+  text-align: center;
+  opacity: 0.7;
+  margin-top: 2rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.filter:hover, .filter.active {
+  opacity: 1;
+}
+
+.filter.active p {
+  font-weight: bold;
+  border-bottom: 2px solid black;
+}
+
+.filter p {
+  font-size: 0.9rem;
+}
+
+.tax-toggle {
+  margin-left: 3rem;
+  border: 1px solid black;
+  border-radius: 1rem;
+  padding: 0.7rem;
+}
+
+.tax-info { display: none; }
+
+.sort-select {
+  border-radius: 25px;
+  padding: 0.4rem 1rem;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.price-filter input {
+  width: 90px;
+  border-radius: 25px;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.price-filter button {
+  border-radius: 25px;
+  padding: 0.4rem 1rem;
+  background: #fe424d;
+  color: white;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.active-filter-tag {
+  background: #f0f0f0;
+  border-radius: 25px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.active-filter-tag a {
+  color: #fe424d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+@media(max-width: 768px) {
+  #filters { justify-content: center; }
+  .tax-toggle { width: 100%; margin-left: 0; text-align: center; }
+}
+
+.listing-link-wrapper {
+  position: relative;
+}
+
+.heart-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.heart-btn:hover {
+  transform: scale(1.1);
+}
+
+.heart-btn i {
+  color: #fe424d;
+  font-size: 1rem;
+}
+
+.heart-btn.wishlisted i {
+  color: #fe424d;
+}
+</style>
+
+<!-- FILTERS ROW -->
+<div id="filters">
+  <div class="filter <%= !currentCategory ? 'active' : '' %>" onclick="filterByCategory('')">
+    <div><i class="fa-solid fa-globe"></i></div>
+    <p>All</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Trending' ? 'active' : '' %>" onclick="filterByCategory('Trending')">
+    <div><i class="fa-solid fa-fire"></i></div>
+    <p>Trending</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Rooms' ? 'active' : '' %>" onclick="filterByCategory('Rooms')">
+    <div><i class="fa-solid fa-bed"></i></div>
+    <p>Rooms</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Iconic-cities' ? 'active' : '' %>" onclick="filterByCategory('Iconic-cities')">
+    <div><i class="fa-solid fa-mountain-city"></i></div>
+    <p>Iconic-cities</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Mountains' ? 'active' : '' %>" onclick="filterByCategory('Mountains')">
+    <div><i class="fa-solid fa-mountain"></i></div>
+    <p>Mountains</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Castles' ? 'active' : '' %>" onclick="filterByCategory('Castles')">
+    <div><i class="fa-brands fa-fort-awesome"></i></div>
+    <p>Castles</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Amazing Pools' ? 'active' : '' %>" onclick="filterByCategory('Amazing Pools')">
+    <div><i class="fa-solid fa-person-swimming"></i></div>
+    <p>Amazing Pools</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Camping' ? 'active' : '' %>" onclick="filterByCategory('Camping')">
+    <div><i class="fa-solid fa-campground"></i></div>
+    <p>Camping</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Farms' ? 'active' : '' %>" onclick="filterByCategory('Farms')">
+    <div><i class="fa-solid fa-tractor"></i></div>
+    <p>Farms</p>
+  </div>
+  <div class="filter <%= currentCategory === 'Arctic' ? 'active' : '' %>" onclick="filterByCategory('Arctic')">
+    <div><i class="fa-regular fa-snowflake"></i></div>
+    <p>Arctic</p>
+  </div>
+
+  <div class="tax-toggle">
+    <div class="form-check-reverse form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+      <label class="form-check-label" for="flexSwitchCheckDefault">Display Total After Taxes</label>
+    </div>
+  </div>
+</div>
+
+<!-- SORT & PRICE FILTER ROW -->
+<div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+  <!-- Sort -->
+  <select class="sort-select" onchange="applySort(this.value)">
+    <option value="" <%= !currentSort ? 'selected' : '' %>>Sort By</option>
+    <option value="price_asc" <%= currentSort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+    <option value="price_desc" <%= currentSort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+  </select>
+
+  <!-- Price Range -->
+  <form class="price-filter d-flex align-items-center gap-2" id="priceForm">
+    <input type="number" name="minPrice" placeholder="Min ₹" value="<%= minPrice || '' %>" min="0" />
+    <span>—</span>
+    <input type="number" name="maxPrice" placeholder="Max ₹" value="<%= maxPrice || '' %>" min="0" />
+    <button type="submit">Apply</button>
+    <% if(minPrice || maxPrice) { %>
+      <a href="<%= '/listings?' + (search ? 'search='+search+'&' : '') + (currentCategory ? 'category='+currentCategory+'&' : '') + (currentSort ? 'sort='+currentSort : '') %>" style="color:#fe424d; text-decoration:none; font-size:0.85rem;">✕ Clear</a>
+    <% } %>
+  </form>
+
+  <!-- Active filters display -->
+  <div class="active-filters">
+    <% if(search) { %>
+      <span class="active-filter-tag">Search: "<%= search %>" <a href="/listings">✕</a></span>
+    <% } %>
+    <% if(currentCategory) { %>
+      <span class="active-filter-tag">Category: <%= currentCategory %> <a href="/listings<%= search ? '?search='+search : '' %>">✕</a></span>
+    <% } %>
+  </div>
+</div>
+
+<% if(allListings.length === 0) { %>
+  <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+    <h4>No listings found.</h4>
+    <a href="/listings" class="btn btn-dark mt-2">Clear All Filters</a>
+  </div>
+<% } %>
+
+<!-- LISTINGS GRID -->
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3" id="listingsGrid">
+  <% for(let listing of allListings){ %>
+    <div class="listing-link-wrapper" style="position:relative;">
+      
+      <!-- HEART BUTTON -->
+      <% if(currUser) { %>
+      <button 
+        class="heart-btn <%= currUser.wishlist.some(w => w._id ? w._id.equals(listing._id) : w.equals(listing._id)) ? 'wishlisted' : '' %>"
+        onclick="toggleWishlist(event, '<%= listing._id %>', this)"
+        title="Save to Wishlist">
+        <i class="fa-heart <%= currUser.wishlist.some(w => w._id ? w._id.equals(listing._id) : w.equals(listing._id)) ? 'fa-solid' : 'fa-regular' %>"></i>
+      </button>
+      <% } %>
+
+      <a href="/listings/<%= listing._id %>" class="listing-link">
+        <div class="card col listing-card">
+          <img src="<%= listing.image.url %>" class="card-img-top" alt="listings" style="height:20rem">
+          <div class="card-img-overlay"></div>
+          <div class="card-body">
+            <p class="card-text">
+              <b><%= listing.title %><br></b>
+              &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
+              <i class="tax-info">&nbsp;&nbsp; +18% GST = &#8377;<%= Math.round(listing.price * 1.18).toLocaleString("en-IN") %></i>
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+function getParams() {
+  return new URLSearchParams(window.location.search);
+}
+
+// Category filter
+function filterByCategory(category) {
+  const params = getParams();
+  if (category) params.set("category", category);
+  else params.delete("category");
+  window.location.href = "/listings?" + params.toString();
+}
+
+// Sort
+function applySort(value) {
+  const params = getParams();
+  if (value) params.set("sort", value);
+  else params.delete("sort");
+  window.location.href = "/listings?" + params.toString();
+}
+
+// Price filter
+document.getElementById("priceForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const params = getParams();
+  const min = e.target.minPrice.value;
+  const max = e.target.maxPrice.value;
+  if (min) params.set("minPrice", min);
+  else params.delete("minPrice");
+  if (max) params.set("maxPrice", max);
+  else params.delete("maxPrice");
+  window.location.href = "/listings?" + params.toString();
+});
+
+// Tax toggle
+let taxSwitch = document.getElementById("flexSwitchCheckDefault");
+taxSwitch.addEventListener("click", () => {
+  let taxInfo = document.getElementsByClassName("tax-info");
+  for (let info of taxInfo) {
+    info.style.display = info.style.display !== "inline" ? "inline" : "none";
+  }
+});
+
+// ── AJAX SEARCH ──
+const searchInput = document.querySelector(".search-inp");
+const searchBtn = document.querySelector(".btn-search");
+const listingsGrid = document.getElementById("listingsGrid");
+
+// restore search value from URL
+searchInput.value = getParams().get("search") || "";
+
+function renderListings(listings) {
+  if (listings.length === 0) {
+    listingsGrid.innerHTML = `
+      <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+        <h4>No listings found.</h4>
+        <a href="/listings" class="btn btn-dark mt-2">Clear All Filters</a>
+      </div>`;
+    return;
+  }
+
+  listingsGrid.innerHTML = listings.map(listing => `
+    <a href="/listings/${listing._id}" class="listing-link">
+      <div class="card col listing-card">
+        <img src="${listing.image.url}" class="card-img-top" alt="listings" style="height:20rem">
+        <div class="card-img-overlay"></div>
+        <div class="card-body">
+          <p class="card-text">
+            <b>${listing.title}<br></b>
+            ₹${listing.price.toLocaleString("en-IN")}/night
+          </p>
+        </div>
+      </div>
+    </a>
+  `).join("");
+}
+
+async function fetchListings(searchVal) {
+  const params = getParams();
+  if (searchVal) params.set("search", searchVal);
+  else params.delete("search");
+
+  const res = await fetch("/listings?" + params.toString(), {
+    headers: { "x-requested-with": "XMLHttpRequest" }
+  });
+  const data = await res.json();
+  renderListings(data.allListings);
+}
+
+// real-time search on every keystroke — NO page reload
+searchInput.addEventListener("input", () => {
+  fetchListings(searchInput.value.trim());
+});
+
+// search button — updates URL and reloads properly
+searchBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  const params = getParams();
+  const val = searchInput.value.trim();
+  if (val) params.set("search", val);
+  else params.delete("search");
+  window.location.href = "/listings?" + params.toString();
+});
+
+async function toggleWishlist(e, listingId, btn) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const res = await fetch(`/wishlist/${listingId}`, { method: "POST" });
+  
+  if (res.status === 401) {
+    window.location.href = "/login";
+    return;
+  }
+
+  const data = await res.json();
+  const icon = btn.querySelector("i");
+
+  if (data.wishlisted) {
+    icon.classList.remove("fa-regular");
+    icon.classList.add("fa-solid");
+    btn.classList.add("wishlisted");
+  } else {
+    icon.classList.remove("fa-solid");
+    icon.classList.add("fa-regular");
+    btn.classList.remove("wishlisted");
+  }
+}
+</script>
