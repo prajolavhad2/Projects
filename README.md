@@ -2,7 +2,7 @@
 
 A full-stack Airbnb-inspired travel listing platform built with Node.js, Express, MongoDB, and EJS.
 
-🌐 **Live Demo:** [wanderlust on Render](https://wanderlust-YOURURL.onrender.com)
+🌐 **Live Demo:** [wanderlust on Render]https://wanderlust-i4cj.onrender.com/listings
 
 ---
 
